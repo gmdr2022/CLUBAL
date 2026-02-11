@@ -1,0 +1,342 @@
+CLUBAL – FUTURE_PATCHES.txt
+Planejamento estruturado de implementações futuras e evolução arquitetural do software.
+
+====================================================================
+VISÃO GERAL
+
+O projeto evoluirá do modelo atual:
+
+SAL – SESI Agenda Live
+→ para uma solução independente e comercial:
+
+CLUBAL – Club Agenda Live
+
+Objetivo estratégico:
+
+Transformar o sistema em um produto multiplataforma, independente de instituição, utilizável por:
+
+• Clubes
+• Academias
+• Centros esportivos
+• Condomínios
+• Escolas
+• Organizações em geral
+
+O SESI será tratado como cliente, não como identidade central do software.
+
+As implementações abaixo estão organizadas por horizonte de tempo, impacto técnico e viabilidade realista considerando:
+
+• Desenvolvimento solo
+• Uso principal de Python + Tkinter
+• Sem infraestrutura paga inicial
+• Evolução progressiva
+
+====================================================================
+ARQUITETURA DE DIRETÓRIOS (PADRÃO FUTURO – APPDATA)
+
+O software passará a utilizar estrutura própria em:
+
+%LOCALAPPDATA%\ClubAL\
+
+Subpastas padrão:
+
+%LOCALAPPDATA%\ClubAL\data\
+→ Arquivos operacionais internos
+→ Bases locais do sistema
+→ Configurações e preferências
+
+%LOCALAPPDATA%\ClubAL\logs\
+→ Logs técnicos automáticos
+→ Histórico de execução
+→ Diagnóstico para suporte
+
+%LOCALAPPDATA%\ClubAL\cache\
+→ Cache de clima
+→ Dados temporários
+→ Arquivos reutilizáveis
+
+%LOCALAPPDATA%\ClubAL\license\
+→ Dados locais de ativação
+→ Identificação da instalação
+→ Estado da licença
+
+Comportamento esperado do sistema:
+
+Na inicialização, o CLUBAL deve:
+
+• Garantir que todas as pastas existam
+• Recriar automaticamente caso tenham sido apagadas
+• Nunca depender da pasta principal do programa para escrita
+• Criar (se possível) um atalho visível na pasta principal apontando para:
+
+%LOCALAPPDATA%\ClubAL\logs\
+
+Objetivo:
+
+Facilitar manutenção técnica e diagnóstico futuro.
+
+====================================================================
+V4 – TRANSFORMAÇÃO DO PRODUTO
+
+Mudança de identidade:
+
+SAL – SESI Agenda Live
+→ passa a se tornar →
+CLUBAL – Club Agenda Live
+
+Uso interno no código:
+
+CAL = abreviação técnica para CLUBAL
+(Apenas para variáveis, logs e referências internas)
+
+Interface e comunicação com usuário:
+
+Sempre utilizar o nome completo:
+
+CLUBAL
+
+====================================================================
+IMPLEMENTAÇÕES DE CURTO PRAZO (PÓS-ESTABILIZAÇÃO)
+
+SUPORTE A DATAS ESPECIAIS
+
+Criar sistema que permita:
+
+• Feriados personalizados
+• Eventos especiais
+• Recessos
+• Carnaval e períodos atípicos
+• Grades temporárias por data
+
+Objetivo:
+
+Permitir comportamento dinâmico da agenda em dias não convencionais.
+
+MODULARIZAÇÃO E ORGANIZAÇÃO DO CÓDIGO
+
+Separar o sistema em múltiplos arquivos menores.
+
+Backend (exemplos):
+
+• agenda_engine.py
+• weather_engine.py
+• data_manager.py
+• license.py
+• security.py
+
+Frontend/UI:
+
+• ui_main.py
+• ui_cards.py
+• ui_layout.py
+
+Assets:
+
+• /graphics
+• /themes
+
+Estrutura final esperada:
+
+/ClubAL
+ /start.exe
+ /readme.txt
+ /license_help.txt
+ /backend/
+ /frontend/
+ /assets/
+
+Objetivos:
+
+• Facilitar manutenção
+• Reduzir arquivos gigantes
+• Melhorar organização
+• Preparar crescimento do sistema
+• Tornar o projeto mais profissional
+
+ELIMINAR DEPENDÊNCIA DO EXCEL
+
+Criar sistema interno de dados próprio:
+
+• Editor simples integrado ao CLUBAL
+• Interface intuitiva para preenchimento da grade
+• Arquivo de dados próprio (ex: JSON interno)
+
+Benefícios:
+
+• Não depender do Office
+• Reduzir erros de leitura
+• Melhorar experiência do usuário
+• Maior controle do formato de dados
+
+GERENCIAMENTO AUTOMÁTICO DE LOGS E CACHE
+
+Implementar políticas automáticas:
+
+• Rotação de logs por tamanho ou tempo
+• Limite máximo de armazenamento
+• Limpeza automática de arquivos antigos
+• Cache com substituição progressiva
+
+Objetivo:
+
+Evitar crescimento excessivo e problemas com TI corporativo.
+
+====================================================================
+IMPLEMENTAÇÕES DE MÉDIO PRAZO (SEGURANÇA E LICENCIAMENTO)
+
+START.EXE COMO ÚNICO PONTO DE ENTRADA
+
+Fluxo de inicialização:
+
+start.exe
+ → chama módulo de verificação
+ → comunica com security.py
+ → valida integridade
+ → valida licença
+ → se OK → inicia backend + frontend
+ → se NÃO OK → bloqueia execução
+
+SISTEMA DE LICENÇA DE USO
+
+Modelo:
+
+• Chave única por unidade
+• Intransferível
+• Ativação individual
+
+Comportamento:
+
+Ao abrir o sistema:
+
+• Solicitar chave de licença
+
+Sem chave:
+
+• Modo demonstração por 7 minutos
+
+Durante o modo demonstração:
+
+• Mostrar “Modo teste” discretamente
+• Contador regressivo visível
+
+Após o tempo:
+
+• Retornar automaticamente para tela de ativação
+
+MÓDULO DE VERIFICAÇÃO DE INTEGRIDADE
+
+Criar sistema de proteção com:
+
+• Arquivo interno de referência
+• Hashes de verificação
+• Comparação estrutural
+
+Objetivo:
+
+Evitar adulteração do software para burlar:
+
+• Licença
+• Tempo de uso
+• Proteções internas
+
+Se falhar:
+
+• Impedir execução
+• Registrar erro detalhado nos logs
+
+LICENÇA ONLINE (FASE INTERMEDIÁRIA)
+
+Modelo futuro:
+
+• licence.py valida chave online
+• Cada chave ativa apenas 1 instalação
+
+Fluxo:
+
+Usuário insere chave
+
+Sistema consulta servidor
+
+Verifica se já foi usada
+
+Se não foi:
+• Ativa localmente
+• Registra uso online
+
+Se já foi usada:
+• Bloqueia ativação
+
+====================================================================
+IMPLEMENTAÇÕES DE LONGO PRAZO (EXPANSÃO DO ECOSSISTEMA)
+
+SITE OFICIAL DO CLUBAL
+
+Funções:
+
+• Download do software
+• Compra de licença
+• Página institucional
+• Suporte técnico
+
+Compatível com:
+
+• Desktop
+• Mobile
+
+APLICATIVO MOBILE
+
+Versões:
+
+• Android
+• iOS
+
+Função:
+
+• Apenas visualização da agenda
+• Sem acesso administrativo
+
+Dados sincronizados com o sistema do clube.
+
+MODELO DE NEGÓCIO FUTURO
+
+Software Windows:
+
+• Compra única OU
+• Assinatura mensal/anual
+
+App mobile:
+
+• Gratuito para sócios
+• Vinculado à unidade
+
+====================================================================
+DIRETRIZES ARQUITETURAIS IMPORTANTES
+
+Ao evoluir o código, priorizar:
+
+• Estrutura modular
+• Baixo acoplamento
+• Independência de bibliotecas externas
+• Facilidade de empacotamento
+• Compatibilidade com licenciamento futuro
+• Preparação para validação online
+• Arquitetura pronta para expansão
+
+====================================================================
+OBSERVAÇÃO ESTRATÉGICA FINAL
+
+O CLUBAL deve evoluir gradualmente, mantendo sempre:
+
+• Simplicidade de instalação
+• Baixo consumo de recursos
+• Robustez offline
+• Facilidade de suporte técnico
+
+O crescimento do produto deve respeitar a realidade de:
+
+• Desenvolvimento solo
+• Sem infraestrutura paga inicial
+• Evolução por demanda real
+
+====================================================================
+FIM DO DOCUMENTO
