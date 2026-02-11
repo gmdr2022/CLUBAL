@@ -547,8 +547,10 @@ class ClassCard(tk.Frame):
 
         self._is_minor = False
         self._progress = 0.0
+        self._last_payload = None
 
         self._place_job = None
+        self._bar_job = None
         self._last_wh = (0, 0)
         self.canvas.bind("<Configure>", self._on_cfg)
 
@@ -597,24 +599,48 @@ class ClassCard(tk.Frame):
         if len(end_s.split(":")) >= 2:
             end_s = ":".join(end_s.split(":")[:2])
 
-        self.time_lbl.configure(text=f"{start_s}–{end_s}")
-        self.title_lbl.configure(text=str(title).upper())
-
         sub = " | ".join([x for x in [teacher, location] if x])
-        self.sub_lbl.configure(text=sub)
+        new_payload = (
+            f"{start_s}–{end_s}",
+            str(title).upper(),
+            sub,
+            (tag or "").strip().upper() == "MENOR",
+        )
 
-        self._is_minor = (tag or "").strip().upper() == "MENOR"
+        if new_payload != self._last_payload:
+            self.time_lbl.configure(text=new_payload[0])
+            self.title_lbl.configure(text=new_payload[1])
+            self.sub_lbl.configure(text=new_payload[2])
+            self._is_minor = new_payload[3]
+            self._last_payload = new_payload
+            self._place()
+
         self._progress = max(0.0, min(1.0, progress))
-        self._place()
+        self._update_bar()
 
     def _update_bar(self):
         w = self.bar_bg.winfo_width()
         if w <= 1:
-            self.after(20, self._update_bar)
-            return
+            # Evita loop agressivo de 20ms quando o card está oculto/não mapeado.
+            # Usa fallback pelo tamanho do canvas e agenda no máximo 1 retry.
+            w = max(0, self.canvas.winfo_width() - 28)
+            if w <= 1:
+                _debounce_after(self, "_bar_job", 120, self._update_bar)
+                return
         fg_w = int(w * self._progress)
         self.bar_fg.place(x=0, y=0, width=fg_w, height=10)
         self.bar_bg.configure(height=10)
+
+    def destroy(self):
+        for attr in ("_place_job", "_bar_job"):
+            job = getattr(self, attr, None)
+            if job is not None:
+                try:
+                    self.after_cancel(job)
+                except Exception:
+                    pass
+                setattr(self, attr, None)
+        super().destroy()
 
 
 class SectionFrame(tk.Frame):
